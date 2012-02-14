@@ -26,6 +26,7 @@ src/Samples/HeavyLoad/logs
 TestResult.xml
 submit.xml
 tests/*
+samples/*
 SolutionVersion.cs
 src/SolutionVersion.cs
 tests

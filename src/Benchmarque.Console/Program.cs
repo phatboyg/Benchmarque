@@ -8,7 +8,7 @@
     using System.Reflection;
     using System.Text;
     using Runtime;
-    using Runtime.Internal;
+    using Internals.Extensions;
 
     class Program
     {

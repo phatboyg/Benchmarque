@@ -1,38 +1,31 @@
-build_output/*
 build_artifacts/*
-*.suo
-*.user
+build_output/*
 
-NDependOut/*
+**/*.suo
+**/**/*.suo
+**/*.user
+**/**/*.user
 
-src/logs/*
-
-**/*.sln*
 bin
 obj
 _ReSharper*
-src/Samples/HeavyLoad/logs
+*.dotCover
 
 *.csproj.user
 *.resharper.user
-*.resharper
-*.ReSharper
+*.ReSharper.user
 *.cache
 *~
 *.swp
 *.bak
 *.orig
+*.user
+samples
+src/packages/**/*
 
 TestResult.xml
 submit.xml
+src/tests/*
 tests/*
-samples/*
+doc/*
 SolutionVersion.cs
-src/SolutionVersion.cs
-tests
-doc/build/*
-
-# osx noise
-.DS_Store
-
-nuspecs/

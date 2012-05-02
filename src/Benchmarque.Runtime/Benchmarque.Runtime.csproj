@@ -35,6 +35,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionVersion.cs">
+      <Link>SolutionVersion.cs</Link>
+    </Compile>
     <Compile Include="BenchmarkRunner.cs" />
     <Compile Include="DisplayResult.cs" />
     <Compile Include="Internal\Caching\Cache.cs" />
@@ -47,7 +50,6 @@
     <Compile Include="Internal\Caching\ReadCache.cs" />
     <Compile Include="Internal\InterfaceExtensions.cs" />
     <Compile Include="Internal\TimeSpanExtensions.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunResult.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +57,9 @@
       <Project>{73251E9C-98BB-4D3F-8D17-C062232E3823}</Project>
       <Name>Benchmarque</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

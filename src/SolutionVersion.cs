@@ -10,5 +10,5 @@ using System.Security;
 
 [assembly: ComVisibleAttribute(false)]
 [assembly: CLSCompliantAttribute(true)]
-[assembly: AssemblyInformationalVersion("0.1.0.059c6a")]
+[assembly: AssemblyInformationalVersion("0.1.0.d85218")]
 

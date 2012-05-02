@@ -85,6 +85,8 @@
 
             long end = Stopwatch.GetTimestamp();
 
+            _benchmark.Shutdown(subject);
+
             long ticksTaken = (end - begin);
 
             return ticksTaken;

@@ -15,7 +15,8 @@ props = {
   :output => File.expand_path("build_output"),
   :artifacts => File.expand_path("build_artifacts"),
   :projects => ["Benchmarque"],
-  :lib => File.expand_path("lib")
+  :lib => File.expand_path("lib"),
+  :tools => File.expand_path("tools")
 }
 
 desc "Cleans, compiles, il-merges, unit tests, prepares examples, packages zip"
@@ -55,6 +56,7 @@ desc "Cleans, versions, compiles the application and generates build_output/."
 task :compile => [:versioning, :global_version, :build] do
 	copyOutputFiles File.join(props[:src], "Benchmarque/bin/Release"), "Benchmarque.{dll,pdb,xml}", File.join(props[:output], 'net-4.0')
 	copyOutputFiles File.join(props[:src], "Benchmarque.Console/bin/Release"), "Benchmarque.Console.{exe,pdb,xml}", File.join(props[:output], 'net-4.0')
+	copyOutputFiles File.join(props[:src], "Benchmarque.Runtime/bin/Release"), "Benchmarque.Runtime.{dll,pdb,xml}", File.join(props[:output], 'net-4.0')
 end
 
 desc "Only compiles the application."
@@ -111,7 +113,11 @@ nuspec :create_nuspec do |nuspec|
   nuspec.licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0"
   nuspec.requireLicenseAcceptance = "false"
   nuspec.output_file = File.join(props[:artifacts], 'Benchmarque.nuspec')
-  add_files props[:output], 'Benchmarque.{dll,pdb,xml}', nuspec
+  add_files props[:output], 'Benchmarque.{dll,pdb,xml}', 'lib', nuspec
+  add_files_no_fw props[:output], 'Benchmarque.Runtime.dll', 'tools', nuspec
+  add_files_no_fw props[:output], 'Benchmarque.Console.exe', 'tools', nuspec
+  add_files_no_fw props[:output], 'Benchmarque.dll', 'tools', nuspec
+  nuspec.file(File.join(props[:tools], "*.ps*").gsub("/","\\"), "tools")
   nuspec.file(File.join(props[:src], "Benchmarque\\**\\*.cs").gsub("/","\\"), "src")
 end
 
@@ -133,11 +139,20 @@ def get_commit_hash_and_date
 	[commit, commit_date]
 end
 
-def add_files stage, what_dlls, nuspec
+def add_files stage, what_dlls, path, nuspec
   [['net40', 'net-4.0']].each{|fw|
     takeFrom = File.join(stage, fw[1], what_dlls)
     Dir.glob(takeFrom).each do |f|
-      nuspec.file(f.gsub("/", "\\"), "lib\\#{fw[0]}")
+      nuspec.file(f.gsub("/", "\\"), "#{path}\\#{fw[0]}")
+    end
+  }
+end
+
+def add_files_no_fw stage, what_dlls, path, nuspec
+  [['net40', 'net-4.0']].each{|fw|
+    takeFrom = File.join(stage, fw[1], what_dlls)
+    Dir.glob(takeFrom).each do |f|
+      nuspec.file(f.gsub("/", "\\"), "#{path}")
     end
   }
 end

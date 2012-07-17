@@ -2,22 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Text;
-    using Runtime;
     using Internals.Extensions;
+    using Runtime;
 
     class Program
     {
         static void Main(string[] argv)
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-            SetupPrivateBinPath(baseDirectory);
-
             if (argv.Length == 0)
             {
                 Console.WriteLine("usage: <assembly name> [filter]");
@@ -26,8 +21,13 @@
 
             string subjectAssembly = argv[0];
 
-            if (subjectAssembly.EndsWith(".dll", true, CultureInfo.InvariantCulture))
-                subjectAssembly = subjectAssembly.Substring(0, subjectAssembly.Length - 4);
+            string subjectPath = Path.GetFullPath(subjectAssembly);
+
+            string privatePath = Path.GetDirectoryName(subjectPath);
+
+            subjectAssembly = Path.GetFileNameWithoutExtension(subjectPath);
+
+            SetupPrivateBinPath(privatePath);
 
             Console.WriteLine("Loading assembly: {0}", subjectAssembly);
 
@@ -123,9 +123,9 @@
         {
             string testSubject = result.SubjectType.Name.Replace(result.RunnerType.Name, "");
 
-            Console.WriteLine("{0,-30}{1,-14}{2,-12}{3,-10}{4}", testSubject, 
+            Console.WriteLine("{0,-30}{1,-14}{2,-12}{3,-10}{4}", testSubject,
                 result.TimeDuration.ToFriendlyString(),
-                result.TimeDifference.ToFriendlyString(), 
+                result.TimeDifference.ToFriendlyString(),
                 result.DurationPerIteration.ToString("F0"),
                 result.PercentageDifference > 1m
                     ? result.PercentageDifference.ToString("F2") + "x"

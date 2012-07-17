@@ -16,6 +16,17 @@ gem install semver2
 
 4. Run `rake`
 
+## Note on Git Submodules
+
+You need to ensure that the submodules are up-to-date. To do this, once you've cloned
+the project (using close --recursive), you can use the following command to update
+to the latest version of the submodules.
+
+```
+git submodule foreach git fetch origin
+git submodule foreach git rebase origin/master
+```
+
 ## Contributing
 
  1. `git config --global core.autoclrf false`

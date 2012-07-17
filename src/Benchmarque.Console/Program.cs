@@ -29,6 +29,8 @@
             if (subjectAssembly.EndsWith(".dll", true, CultureInfo.InvariantCulture))
                 subjectAssembly = subjectAssembly.Substring(0, subjectAssembly.Length - 4);
 
+            Console.WriteLine("Loading assembly: {0}", subjectAssembly);
+
             Assembly specs = Assembly.Load(subjectAssembly);
 
             string filter = null;
@@ -66,8 +68,6 @@
         static void SetupPrivateBinPath(string path)
         {
             var current = AppDomain.CurrentDomain.GetData("PRIVATE_BINPATH") as string;
-            Console.WriteLine("Value: {0}", current);
-
 
             var appendPath = new StringBuilder();
 
@@ -84,10 +84,6 @@
             string result = appendPath.ToString();
 
             AppDomain.CurrentDomain.SetData("PRIVATE_BINPATH", result);
-
-            current = AppDomain.CurrentDomain.GetData("PRIVATE_BINPATH") as string;
-
-            Console.WriteLine("New Value: {0}", current);
         }
 
         static void Display(IEnumerable<RunResult> results)
@@ -114,7 +110,6 @@
 
             RunResult best = ordered.First();
 
-
             IEnumerable<DisplayResult> results = ordered.Select(x => new DisplayResult(x, best));
             foreach (DisplayResult x in results)
             {
@@ -128,8 +123,10 @@
         {
             string testSubject = result.SubjectType.Name.Replace(result.RunnerType.Name, "");
 
-            Console.WriteLine("{0,-30}{1,-14}{2,-12}{3,-10}{4}", testSubject, result.TimeDuration.ToFriendlyString(),
-                result.TimeDifference.ToFriendlyString(), result.DurationPerIteration,
+            Console.WriteLine("{0,-30}{1,-14}{2,-12}{3,-10}{4}", testSubject, 
+                result.TimeDuration.ToFriendlyString(),
+                result.TimeDifference.ToFriendlyString(), 
+                result.DurationPerIteration.ToString("F0"),
                 result.PercentageDifference > 1m
                     ? result.PercentageDifference.ToString("F2") + "x"
                     : "");

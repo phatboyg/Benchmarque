@@ -54,6 +54,7 @@ end
 desc "Cleans, versions, compiles the application and generates build_output/."
 task :compile => [:versioning, :global_version, :build] do
 	copyOutputFiles File.join(props[:src], "Benchmarque/bin/Release"), "Benchmarque.{dll,pdb,xml}", File.join(props[:output], 'net-4.0')
+	copyOutputFiles File.join(props[:src], "Benchmarque.Console/bin/Release"), "Benchmarque.Console.{exe,pdb,xml}", File.join(props[:output], 'net-4.0')
 end
 
 desc "Only compiles the application."

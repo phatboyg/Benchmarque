@@ -74,6 +74,17 @@
     <Compile Include="..\SolutionVersion.cs">
       <Link>SolutionVersion.cs</Link>
     </Compile>
+    <Compile Include="DependencyGraph.cs" />
+    <Compile Include="Implementations\AdjacencyList.cs" />
+    <Compile Include="Implementations\DependencyGraphNode.cs" />
+    <Compile Include="Implementations\Edge.cs" />
+    <Compile Include="Implementations\Node.cs" />
+    <Compile Include="Implementations\NodeList.cs" />
+    <Compile Include="Implementations\NodeTable.cs" />
+    <Compile Include="Implementations\Tarjan.cs" />
+    <Compile Include="Implementations\TarjanNodeProperties.cs" />
+    <Compile Include="Implementations\TopologicalSort.cs" />
+    <Compile Include="Implementations\TopologicalSortNodeProperties.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>

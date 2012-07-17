@@ -11,6 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarque.Sample", "Bench
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarque.Tests", "Benchmarque.Tests\Benchmarque.Tests.csproj", "{7D1B2391-C653-4ED8-9623-74B7FE7EC2CF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Powershell Scripts", "Powershell Scripts", "{4E00EBEB-7565-45ED-B983-D3AF0A309B56}"
+	ProjectSection(SolutionItems) = preProject
+		..\tools\Benchmarque.psm1 = ..\tools\Benchmarque.psm1
+		..\tools\init.ps1 = ..\tools\init.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

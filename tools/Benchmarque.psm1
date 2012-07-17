@@ -9,17 +9,22 @@ function Start-Benchmark {
     $toolsPath = Get-Script-Directory
   }
 
-  $assemblyName = [IO.Path]::GetFileNameWithoutExtension($assembly)
-
   $filePath = (join-path $toolsPath "Benchmarque.Console.exe")
 
   $p = new-object System.Diagnostics.Process
   $p.StartInfo.Filename = $filePath
-  $p.StartInfo.Arguments = $assemblyName
+  $p.StartInfo.Arguments = $assembly
   $p.StartInfo.UseShellExecute = $False
+  $p.StartInfo.CreateNoWindow = $True
+  $p.StartInfo.WorkingDirectory = $(get-location)
+  $p.StartInfo.RedirectStandardOutput = $True
   $p.Start();
 
-  $p.WaitForExit();
+  $success = $p.WaitForExit();
+
+  [string] $out = $p.StandardOutput.ReadToEnd();
+
+  ($out)
 }
 
 function Get-Script-Directory {

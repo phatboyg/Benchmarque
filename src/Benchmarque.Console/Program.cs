@@ -19,21 +19,14 @@
                 return;
             }
 
-            Console.WriteLine("Current Working Directory: {0}", Directory.GetCurrentDirectory());
-
             string subjectAssembly = argv[0];
             Console.WriteLine("Subject Assembly: {0}", subjectAssembly);
 
             string subjectPath = Path.GetFullPath(subjectAssembly);
-            Console.WriteLine("Subject path: {0}", subjectPath);
 
             string privatePath = Path.GetDirectoryName(subjectPath);
-            Console.WriteLine("Private path: {0}", privatePath);
 
-            subjectAssembly = Path.GetFileNameWithoutExtension(subjectPath);
-            Console.WriteLine("Final Subject Assembly: {0}", subjectAssembly);
-
-            SetupPrivateBinPath(privatePath);
+//            SetupPrivateBinPath(privatePath);
 
             Assembly specs;
             try
@@ -42,13 +35,12 @@
                 foreach (string loadAssemblyName in assembliesToLoad)
                 {
                     string loadAssemblyPath = Path.Combine(privatePath, loadAssemblyName);
-                    Console.WriteLine("Loading assembly: {0}", loadAssemblyPath);
 
                     Assembly.LoadFrom(loadAssemblyPath);
                 }
 
                 Console.WriteLine("Loading subject assembly: {0}", subjectPath);
-                specs = Assembly.LoadFile(subjectPath);
+                specs = Assembly.LoadFrom(subjectPath);
             }
             catch (Exception ex)
             {
@@ -60,7 +52,9 @@
             if (argv.Length >= 2)
                 filter = argv[1];
 
-            var types = specs.GetTypes()
+            var specTypes = specs.GetTypes();
+
+            var types = specTypes
                 .Where(type => type.HasInterface(typeof(Benchmark<>)) && type.IsConcreteType())
                 .Select(type => new
                     {
@@ -72,7 +66,7 @@
 
             foreach (var benchmark in types)
             {
-                Type[] subjectTypes = specs.GetTypes()
+                Type[] subjectTypes = specTypes
                     .Where(type => type.HasInterface(benchmark.InputType))
                     .Where(type => type.IsConcreteType())
                     .OrderBy(x => x.Name)
@@ -85,7 +79,6 @@
 
                 Display(results);
             }
-            ;
         }
 
         static void SetupPrivateBinPath(string path)
@@ -167,10 +160,12 @@
 
                 AddDependentAssembly(graph, assemblyPath, referencedName);
             }
+            
+            string assemblyFileName = Path.GetFileName(assemblyPath);
 
-            string name = Path.GetFileName(assemblyPath);
-
-            return graph.GetItemsInDependencyOrder(name);
+            return graph.GetItemsInDependencyOrder(assemblyFileName)
+                .Where(x => x != Path.GetFileName(assemblyPath))
+                .Where(x => x != "Benchmarque.dll");
         }
 
         static void AddDependentAssembly(DependencyGraph<string> graph, string assemblyPath,
@@ -179,19 +174,19 @@
             string name = Path.GetFileName(assemblyPath);
             string path = Path.GetDirectoryName(assemblyPath);
 
-            Console.WriteLine("Parsing dependency of {0}: {1}", name, referencedAssemblyName);
-
-            string referencedPath = Path.Combine(path, referencedAssemblyName);
+            string referencedPath = Path.Combine(path, referencedAssemblyName + ".dll");
             if (File.Exists(referencedPath))
             {
-                graph.Add(name, referencedAssemblyName);
+                string assemblyName = Path.GetFileName(referencedPath);
+
+                graph.Add(name, assemblyName);
 
                 Assembly assembly = Assembly.ReflectionOnlyLoadFrom(referencedPath);
                 foreach (AssemblyName referencedAssembly in assembly.GetReferencedAssemblies())
                 {
                     string referencedName = Path.GetFileName(referencedAssembly.Name);
 
-                    AddDependentAssembly(graph, referencedAssemblyName, referencedName);
+                    AddDependentAssembly(graph, assemblyName, referencedName);
                 }
             }
         }

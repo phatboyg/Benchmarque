@@ -17,6 +17,7 @@
             SubjectType = other.SubjectType;
             BenchmarkType = other.BenchmarkType;
             RunnerType = other.RunnerType;
+            MemoryUsage = other.MemoryUsage;
         }
 
         public int Iterations { get; set; }
@@ -34,5 +35,7 @@
         }
 
         public Type RunnerType { get; set; }
+
+        public long MemoryUsage { get; set; }
     }
 }

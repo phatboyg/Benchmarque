@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
     using Internals.Extensions;
     using Runtime;
 
@@ -25,8 +24,6 @@
             string subjectPath = Path.GetFullPath(subjectAssembly);
 
             string privatePath = Path.GetDirectoryName(subjectPath);
-
-//            SetupPrivateBinPath(privatePath);
 
             Assembly specs;
             try
@@ -52,7 +49,7 @@
             if (argv.Length >= 2)
                 filter = argv[1];
 
-            var specTypes = specs.GetTypes();
+            Type[] specTypes = specs.GetTypes();
 
             var types = specTypes
                 .Where(type => type.HasInterface(typeof(Benchmark<>)) && type.IsConcreteType())
@@ -81,27 +78,6 @@
             }
         }
 
-        static void SetupPrivateBinPath(string path)
-        {
-            var current = AppDomain.CurrentDomain.GetData("PRIVATE_BINPATH") as string;
-
-            var appendPath = new StringBuilder();
-
-            if (!string.IsNullOrEmpty(current))
-            {
-                // See if the last character is a separator 
-                appendPath.Append(current);
-                if ((current[current.Length - 1] != Path.PathSeparator) &&
-                    (path[0] != Path.PathSeparator))
-                    appendPath.Append(Path.PathSeparator);
-            }
-            appendPath.Append(path);
-
-            string result = appendPath.ToString();
-
-            AppDomain.CurrentDomain.SetData("PRIVATE_BINPATH", result);
-        }
-
         static void Display(IEnumerable<RunResult> results)
         {
             IEnumerable<IGrouping<int, RunResult>> groupBy = results.GroupBy(x => x.Iterations);
@@ -118,9 +94,10 @@
                 group.First().RunnerType.Name, group.Key);
 
             Console.WriteLine();
-            Console.WriteLine("{0,-30}{1,-14}{2,-12}{3,-10}{4}", "Implementation", "Duration", "Difference", "Each",
-                "Multiplier");
-            Console.WriteLine(new string('=', 78));
+            Console.WriteLine("{0,-30}{1,-14}{2,-12}{3,-10}{4,-12}{5,-12}{6}", "Implementation", "Duration",
+                "Difference", "Each",
+                "Multiplier", "Memory(KB)", "Throughput");
+            Console.WriteLine(new string('=', 102));
 
             IOrderedEnumerable<RunResult> ordered = group.OrderBy(x => x.Duration);
 
@@ -129,23 +106,25 @@
             IEnumerable<DisplayResult> results = ordered.Select(x => new DisplayResult(x, best));
             foreach (DisplayResult x in results)
             {
-                DisplayResult(x);
+                DisplayResult(group.Key, x);
             }
 
             Console.WriteLine();
         }
 
-        static void DisplayResult(DisplayResult result)
+        static void DisplayResult(int count, DisplayResult result)
         {
             string testSubject = result.SubjectType.Name.Replace(result.RunnerType.Name, "");
 
-            Console.WriteLine("{0,-30}{1,-14}{2,-12}{3,-10}{4}", testSubject,
+            Console.WriteLine("{0,-30}{1,-14}{2,-12}{3,-10}{4,-12}{5,-12}{6}/s", testSubject,
                 result.TimeDuration.ToFriendlyString(),
                 result.TimeDifference.ToFriendlyString(),
                 result.DurationPerIteration.ToString("F0"),
                 result.PercentageDifference > 1m
                     ? result.PercentageDifference.ToString("F2") + "x"
-                    : "");
+                    : "",
+                (result.MemoryUsage/1024).ToString("N0"),
+                result.Throughput.ToString("N0"));
         }
 
         static IEnumerable<string> GetDependentAssemblies(string assemblyPath)
@@ -160,7 +139,7 @@
 
                 AddDependentAssembly(graph, assemblyPath, referencedName);
             }
-            
+
             string assemblyFileName = Path.GetFileName(assemblyPath);
 
             return graph.GetItemsInDependencyOrder(assemblyFileName)

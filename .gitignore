@@ -11,6 +11,8 @@ obj
 _ReSharper*
 *.dotCover
 
+NuGet.exe
+
 *.csproj.user
 *.resharper.user
 *.ReSharper.user

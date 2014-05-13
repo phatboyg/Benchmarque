@@ -54,9 +54,9 @@ end
 
 desc "Cleans, versions, compiles the application and generates build_output/."
 task :compile => [:versioning, :global_version, :build] do
-	copyOutputFiles File.join(props[:src], "Benchmarque/bin/Release"), "Benchmarque.{dll,pdb,xml}", File.join(props[:output], 'net-4.0')
-	copyOutputFiles File.join(props[:src], "Benchmarque.Console/bin/Release"), "Benchmarque.Console.{exe,pdb,xml}", File.join(props[:output], 'net-4.0')
-	copyOutputFiles File.join(props[:src], "Benchmarque.Runtime/bin/Release"), "Benchmarque.Runtime.{dll,pdb,xml}", File.join(props[:output], 'net-4.0')
+	copyOutputFiles File.join(props[:src], "Benchmarque/bin/Release"), "Benchmarque.{dll,pdb,xml}", File.join(props[:output], 'net-4.5')
+	copyOutputFiles File.join(props[:src], "Benchmarque.Console/bin/Release"), "Benchmarque.Console.{exe,pdb,xml}", File.join(props[:output], 'net-4.5')
+	copyOutputFiles File.join(props[:src], "Benchmarque.Runtime/bin/Release"), "Benchmarque.Runtime.{dll,pdb,xml}", File.join(props[:output], 'net-4.5')
 end
 
 desc "Only compiles the application."
@@ -78,7 +78,7 @@ end
 desc "Runs unit tests"
 nunit :tests => [:compile] do |nunit|
 
-          nunit.command = File.join('src', 'packages','NUnit.Runners.2.6.0.12051', 'tools', 'nunit-console.exe')
+          nunit.command = File.join('src', 'packages','NUnit.Runners.2.6.3', 'tools', 'nunit-console.exe')
           nunit.options = "/framework=#{CLR_TOOLS_VERSION}", '/nothread', '/nologo', '/labels', "\"/xml=#{File.join(props[:artifacts], 'nunit-test-results.xml')}\""
           nunit.assemblies = FileList[File.join(props[:src], "Benchmarque.Tests/bin/Release", "Benchmarque.Tests.dll")]
 end
@@ -92,14 +92,16 @@ zip :zip_output => [:versioning] do |zip|
 	zip.output_path = props[:artifacts]
 end
 
-desc "Restore NuGet Packages"
-task :nuget_restore do
-  sh "lib/nuget install #{File.join(props[:src],"Benchmarque.Tests","packages.config")} -o #{File.join(props[:src],"packages")}"
+desc "restores missing packages"
+msbuild :nuget_restore do |msb|
+  msb.use :net4
+  msb.targets :RestorePackages
+  msb.solution = File.join(props[:src], "Benchmarque.Tests", "Benchmarque.Tests.csproj")
 end
 
 desc "Builds the nuget package"
 task :nuget => [:versioning, :create_nuspec] do
-	sh "lib/nuget pack #{props[:artifacts]}/Benchmarque.nuspec /Symbols /OutputDirectory #{props[:artifacts]}"
+	sh "src/.nuget/nuget.exe pack #{props[:artifacts]}/Benchmarque.nuspec /Symbols /OutputDirectory #{props[:artifacts]}"
 end
 
 nuspec :create_nuspec do |nuspec|
@@ -140,7 +142,7 @@ def get_commit_hash_and_date
 end
 
 def add_files stage, what_dlls, path, nuspec
-  [['net40', 'net-4.0']].each{|fw|
+  [['net45', 'net-4.5']].each{|fw|
     takeFrom = File.join(stage, fw[1], what_dlls)
     Dir.glob(takeFrom).each do |f|
       nuspec.file(f.gsub("/", "\\"), "#{path}\\#{fw[0]}")
@@ -149,7 +151,7 @@ def add_files stage, what_dlls, path, nuspec
 end
 
 def add_files_no_fw stage, what_dlls, path, nuspec
-  [['net40', 'net-4.0']].each{|fw|
+  [['net45', 'net-4.5']].each{|fw|
     takeFrom = File.join(stage, fw[1], what_dlls)
     Dir.glob(takeFrom).each do |f|
       nuspec.file(f.gsub("/", "\\"), "#{path}")
